@@ -24,12 +24,14 @@
             if(!n_blocks) n_blocks=3
             if(!n_per_block) n_per_block=100
 
-
+            
             markers= window.localStorage.getItem('markers')
             if(!markers) markers=[]
             
             participant=window.localStorage.getItem('participant')
             session=window.localStorage.getItem('session')
+
+            console.log(group,stage,n_blocks,n_per_block,participant,session)
         });
 
         if(!stage) stage=3
