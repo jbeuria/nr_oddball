@@ -31,7 +31,7 @@
             participant=window.localStorage.getItem('participant')
             session=window.localStorage.getItem('session')
 
-            console.log(group,stage,n_blocks,n_per_block,participant,session)
+            console.log(group,stage,n_blocks,n_per_block,participant,session,markers)
         });
 
         if(!stage) stage=3
@@ -53,7 +53,7 @@
   </head>
   <script>
 
-function saveToCsv(samples) 
+    function saveToCsv(samples) 
     {
         const a = document.createElement('a');
     
@@ -99,8 +99,8 @@ function saveToCsv(samples)
 
     timeline.push(start);
 
-    let even_stimulus= '/audio/500hz_50ms.wav'
-    let odd_stimulus= '/audio/2000hz_50ms.wav'
+    let even_stimulus= 'audio/500hz_50ms.wav'
+    let odd_stimulus= 'audio/2000hz_50ms.wav'
 
     function insert_marker(marker){
         markers=addToMarkers({timestamp:new Date().getTime()/1000.0,marker})
