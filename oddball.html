@@ -38,8 +38,9 @@
 
 
         function addToMarkers(marker_dict){
-            temp= window.localStorage.getItem('markers')
-            temp_array=JSON.parse(temp)
+            var temp= window.localStorage.getItem('markers')
+            var temp_array=[]
+            if(temp)  temp_array=JSON.parse(temp)
             temp_array.push(marker_dict)
             markers=temp_array
             window.localStorage.setItem('markers',JSON.stringify(temp_array))
