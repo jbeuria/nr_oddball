@@ -1,0 +1,96 @@
+
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://unpkg.com/jspsych@7.3.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-audio-keyboard-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
+    <link rel="stylesheet" href="https://unpkg.com/jspsych@7.3.2/css/jspsych.css" />
+    
+    <script>
+        var group,stage
+        document.addEventListener('DOMContentLoaded', function() {
+            let url= new URL(window.location.href);
+            let params = new URLSearchParams(url.search);
+            var group=params.get('group')
+            var stage=parseInt(params.get('stage'))
+
+        });
+
+        if(!stage) stage=1
+        if(!group) group='N'
+
+        markers= window.localStorage.getItem('markers')
+        if(!markers) markers=[]
+        
+        function addToMarkers(marker_dict){
+            temp= window.localStorage.getItem('markers')
+            temp_array=JSON.parse(temp)
+            temp_array.push(marker_dict)
+            window.localStorage.setItem('markers',JSON.stringify(temp_array))
+        }
+
+    </script>
+  </head>
+  <body></body>
+
+<script>
+    /* initialize jsPsych */
+    const jsPsych = initJsPsych({show_progress_bar: true});
+
+    let timeline=[]
+    const preload = {
+        type: jsPsychPreload,
+        auto_preload: true
+    }
+    timeline.push(preload);
+
+    let welcome = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `<h1> Welcome to the experiment.<h1> 
+        <h1 style='color:blue'> Press any key to play the narrative. </h1>
+        <ul> 
+            <li>The duration is around 10 minutes</li> 
+            <li>Please close your eyes and after the narrative, 
+                you will be assessed based on the content you are going to hear
+            </li>
+        </ul>
+        `
+    };
+    timeline.push(welcome);
+
+    let narrative_file='/audio/reverses_of_life.mp3'
+
+    const trial = {
+        type: jsPsychAudioKeyboardResponse,
+        stimulus: narrative_file,
+        choices: "NO_KEYS",
+        post_trial_gap: 1000,
+        trial_ends_after_audio: true,
+        on_start: () => { 
+            let temp={timestamp:new Date().getTime()/1000.0,marker:101}
+            addToMarkers(temp)
+        },
+        on_finish: ()=>{
+            let temp={timestamp:new Date().getTime()/1000.0,marker:102}
+            addToMarkers(temp)
+        } 
+    };
+
+    timeline.push(trial);
+    
+    const end = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: `<a href='/contemplate?group=N' >Click to proceed to assessment stage</a>`,
+        choices: "NO_KEYS",
+    };
+    timeline.push(end)
+
+    jsPsych.run(timeline);
+</script>
+
+
+</html>

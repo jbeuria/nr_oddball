@@ -1,0 +1,31 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="js/Muse.js"></script>
+  </head>
+  <body>
+
+
+  </body>
+  <script>
+  var muse = new Muse();  
+  function getData()
+  {
+    while(true){ 
+      for (var i=0;i<256;i++) {
+        console.log(muse.eeg[0].lastwrite); 
+        console.log("EEG: " + muse.eeg[0].read());
+      }
+    sleep(1)
+    }
+    // for (var i=0;i<10000;i++) console.log("EEG: " + muse.eeg[0].read());
+    // for (var i=0;i<1000;i++) console.log("PPG: " + muse.ppg[0].read());
+    // for (var i=0;i<1000;i++) console.log("Accelerometer: " + muse.accelerometer[0].read());
+    // for (var i=0;i<1000;i++) console.log("Gyroscope: " + muse.gyroscope[0].read());
+    // console.log(muse.eeg)
+  }
+  // (async() => {
+
+  // })();
+  </script>

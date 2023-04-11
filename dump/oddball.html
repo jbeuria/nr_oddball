@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My experiment</title>
+    <script src="https://unpkg.com/jspsych@7.3.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-image-keyboard-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-audio-keyboard-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
+    <link href="https://unpkg.com/jspsych@7.3.2/css/jspsych.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body></body>
+  <script>
+
+    /* initialize jsPsych */
+    var jsPsych = initJsPsych({
+      on_finish: function() {
+        jsPsych.data.displayData();
+      },
+      show_progress_bar: true
+    });
+    
+    /* create timeline */
+    var timeline = [];
+    
+    var n_blocks=3
+    var n_per_block=100
+
+    /* preload images */
+    var preload = {
+      type: jsPsychPreload,
+      auto_preload: true,
+      images:['img/speaker.png'],
+      audio: ['audio/500hz_50ms.wav', 'audio/2000hz_50ms.wav']
+    };
+    timeline.push(preload);
+
+    /* define welcome message trial */
+    var welcome = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: "<h1> Welcome to the experiment. Press any key to begin. </h1>"
+    };
+    timeline.push(welcome);
+
+    /* define instructions trial */
+    var instructions = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `
+        <div>
+        <p>In this experiment, we are studying your auditory attention. 
+          You will have to count the number of odd sound
+        </p>
+        <p> Presss <b>'h'</b> to hear high frequency tone </p>
+        <p>Press <b>'l'</b> to hear low frequency tone </p>
+        <p> No of trial blocks: ${n_blocks} </p>
+        <p> No of trials per trial block: ${n_per_block} </p>
+        </div>
+        <p>Press any key to begin.</p>
+      `
+    };
+    timeline.push(instructions);
+
+    /* define trial stimuli array for timeline variables */
+    // var test_stimuli = [
+    //   { odd_stimulus: 'audio/500hz_50ms.wav'},
+    //   { even_stimulus: 'audio/2000hz_50ms.wav'}
+    // ];
+    even_stimulus= 'audio/500hz_50ms.wav'
+    odd_stimulus= 'audio/2000hz_50ms.wav'
+
+    /* define fixation and test trials */
+    var fixation = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: '<div style="font-size:300px;">+</div>',
+      choices: "NO_KEYS",
+      trial_duration: 500,
+      data: {
+        task: 'fixation'
+      }
+    };
+
+    
+
+    test_indices=[...Array(n_per_block).keys()]
+    
+    var n_stim= Math.floor(n_per_block/8.0) +   Math.floor(Math.random() * n_per_block/8.0) + 1  
+    var audio_arr=test_indices.map(el=>0)
+    for(var i = 0; i < n_stim ; i++)
+    {
+      while(true)
+      {
+        loc=  Math.floor(Math.random() * (n_per_block-1)) + 1 
+        if(audio_arr[loc-1] !=1 && audio_arr[loc] !=1  &&  audio_arr[loc+1]!=1)
+        {
+          audio_arr[loc]=1
+          break
+        }
+      }
+    }
+
+    var test_counter=0
+
+    const oddball_selection=()=>{
+      var response=even_stimulus
+      if(audio_arr[test_counter]==1) response= odd_stimulus
+      test_counter+=1
+      return response
+    }
+
+    var test = {
+      type: jsPsychAudioKeyboardResponse,
+      stimulus: even_stimulus, //oddball_selection,
+      choices: "NO_KEYS",
+      trial_ends_after_audio: true,
+      post_trial_gap: 1000,
+    };
+
+    testblock_indices=[...Array(n_blocks).keys()]
+    test_blocks=testblock_indices.map(el=>[test])
+    /* define test procedure */
+    var test_procedure = {
+      timeline: test_blocks, //loops [fixation,test] n_blocks times
+      timeline_variables: test_counter,
+      repetitions: n_per_block,
+      randomize_order: true
+    };
+    timeline.push(test_procedure);
+
+    /* start the experiment */
+    jsPsych.run(timeline);
+
+  </script>
+</html>
+

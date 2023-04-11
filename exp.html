@@ -1,0 +1,28 @@
+
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        let url= new URL(window.location.href);
+        let params = new URLSearchParams(url.search);
+        var group=params.get('group')
+        var stage=parseInt(params.get('stage'))
+        if(group=='N' && stage==0) goto('/lecture')
+        else if (group=='M' && stage==0) goto('/kirtan')
+        else if(stage==1) goto(`/contemplate?group=${group}`)
+        else if(stage==2) goto('/oddball')
+        else if(stage==3) goto('/end')
+    });
+    function goto(url)
+    {
+        window.location.href=url
+    }
+    </script>
+  </head>
+  <body></body>
+</html>
+
+

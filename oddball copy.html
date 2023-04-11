@@ -1,0 +1,181 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://unpkg.com/jspsych@7.3.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-audio-keyboard-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
+    <link rel="stylesheet" href="https://unpkg.com/jspsych@7.3.2/css/jspsych.css" />
+    <script src="js/Muse.js"></script>
+  </head>
+  <body></body>
+  <script>
+  var muse = new Muse();
+  async function setup_muse()
+  {
+    try {
+      await muse.connect();
+      await muse.start();
+    } 
+    catch (err) {
+        console.log(err);
+    }
+    return
+  }
+  
+  function getData()
+  {
+    // while(true){ 
+      for (var i=0;i<256;i++) {
+        console.log(muse.eeg[0].lastwrite); 
+        console.log("EEG: " + muse.eeg[0].read());
+      }
+      // sleep(1)
+    // }
+    // for (var i=0;i<10000;i++) console.log("EEG: " + muse.eeg[0].read());
+    // for (var i=0;i<1000;i++) console.log("PPG: " + muse.ppg[0].read());
+    // for (var i=0;i<1000;i++) console.log("Accelerometer: " + muse.accelerometer[0].read());
+    // for (var i=0;i<1000;i++) console.log("Gyroscope: " + muse.gyroscope[0].read());
+    // console.log(muse.eeg)
+  }
+  // (async() => {
+
+  // })();
+
+  </script>
+  <script>
+
+    const jsPsych = initJsPsych({show_progress_bar: true});
+
+    var timeline=[]
+    const preload = {
+      type: jsPsychPreload,
+      auto_preload: true
+    }
+
+    var welcome = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: "<h1> Welcome to the experiment.<h1> <h1> Press any key to connect Muse. </h1>"
+    };
+    timeline.push(welcome);
+    
+    const start = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: "<h1> Press any key to continue further ... </h1>",
+      on_load:async ()=>await setup_muse(),
+    };
+
+    timeline.push(start);
+
+    var n_blocks=1
+    var n_per_block=20
+    even_stimulus= 'audio/500hz_50ms.wav'
+    odd_stimulus= 'audio/2000hz_50ms.wav'
+
+    markers=[]
+    function insert_marker(marker){
+      markers.push({timestamp:new Date().getTime()/1000.0,marker})
+    }
+
+    
+    test_indices=[...Array(n_per_block).keys()]
+    
+    var n_stim= Math.floor(n_per_block/8.0) +   Math.floor(Math.random() * n_per_block/8.0) + 1  
+    var audio_arr=test_indices.map(el=>0)
+    for(var i = 0; i < n_stim ; i++)
+    {
+      while(true)
+      {
+        loc=  Math.floor(Math.random() * (n_per_block-1)) + 1 
+        if(audio_arr[loc-1] !=1 && audio_arr[loc] !=1  &&  audio_arr[loc+1]!=1)
+        {
+          audio_arr[loc]=1
+          break
+        }
+      }
+    }
+
+    var test_counter=0
+    var trial_block=1
+    const oddball_selection=()=>{
+      var response=even_stimulus
+      if(audio_arr[test_counter]==1) {
+        insert_marker(1001)
+        response= odd_stimulus
+      }
+      else insert_marker(1002)
+
+      test_counter+=1
+      // console.log(test_counter)
+      if(test_counter==n_per_block) { 
+        test_counter= 0
+        trial_block+=1
+      }
+
+      return response
+    }
+
+    var fixation = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: '<div style="font-size:400px;">+</div>',
+      choices: "NO_KEYS",
+      trial_duration: 500,
+      data: {
+        task: 'fixation'
+      }
+    };
+    
+    const trial = {
+      type: jsPsychAudioKeyboardResponse,
+      stimulus: oddball_selection,
+      choices: "NO_KEYS",
+      post_trial_gap: 850,
+      trial_ends_after_audio: true,
+    };
+
+    const trial_procedure={
+      timeline: [trial],
+      timeline_variables: test_counter,
+      repetitions: n_per_block,
+      randomize_order: true
+    }
+    const block_change = {
+      type: jsPsychHtmlKeyboardResponse,
+      choices: "NO_KEYS",
+      stimulus:  `<h1> Trial Block No: ${trial_block}/${n_blocks}</h1>`,
+      trial_duration: 1500,
+    };
+
+    const trial_blocks={
+      timeline: [fixation,block_change,trial_procedure],
+      timeline_variables: test_counter,
+      repetitions: n_blocks,
+      randomize_order: true
+    }
+
+
+    timeline.push(trial_blocks);
+    
+
+
+    const end = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `<p>The experiment is complete. Thanks!</p>`,
+      choices: "NO_KEYS",
+      on_start: () => {
+        // const id = jsPsych.data.get().filter({ task: "subject_id" }).values()[0]
+        //   .response.Q0;
+        // jsPsych.data.get().localSave("json", `subject-${id}-behavioral.json`);
+        console.log(n_stim,markers)
+        getData()
+      },
+    };
+    timeline.push(end)
+
+    jsPsych.run(timeline);
+
+
+  </script>
+</html>
