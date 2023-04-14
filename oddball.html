@@ -8,51 +8,39 @@
     <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
     <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
     <link rel="stylesheet" href="https://unpkg.com/jspsych@7.3.2/css/jspsych.css" />
-    
-    <script>
-        var group,stage,n_blocks,n_per_block,participant,session
-        document.addEventListener('DOMContentLoaded', function() {
-            let url= new URL(window.location.href);
-            let params = new URLSearchParams(url.search);
-            group=params.get('group')
-            stage=parseInt(params.get('stage'))
 
-            n_blocks=parseInt(params.get('nb'))
-            n_per_block=parseInt(params.get('npb'))
-
-
-            if(!n_blocks) n_blocks=3
-            if(!n_per_block) n_per_block=100
-
-            
-            markers= window.localStorage.getItem('markers')
-            if(!markers) markers=[]
-            
-            participant=window.localStorage.getItem('participant')
-            session=window.localStorage.getItem('session')
-
-            console.log(group,stage,n_blocks,n_per_block,participant,session,markers)
-        });
-
-        if(!stage) stage=3
-        if(!group) group='undefined'
-
-
-
-        function addToMarkers(marker_dict){
-            var temp= window.localStorage.getItem('markers')
-            var temp_array=[]
-            if(temp)  temp_array=JSON.parse(temp)
-            temp_array.push(marker_dict)
-            markers=temp_array
-            window.localStorage.setItem('markers',JSON.stringify(temp_array))
-            return temp_array
-        }
-
-    </script>
   </head>
+  <body>
+
   <script>
 
+    var group,stage,n_blocks,n_per_block,participant,session
+    let url= new URL(window.location.href);
+    let params = new URLSearchParams(url.search);
+    group=params.get('group')
+    stage=parseInt(params.get('stage'))
+    var download=parseInt(params.get('download'))
+
+    n_blocks=parseInt(params.get('nb'))
+    n_per_block=parseInt(params.get('npb'))
+
+
+    if(!n_blocks) n_blocks=3
+    if(!n_per_block) n_per_block=100
+    if(isNaN(download)) download=1
+
+    window.localStorage.setItem('oddball_markers','[]')
+    oddball_markers= window.localStorage.getItem('oddball_markers')
+    if(!oddball_markers) oddball_markers=[]
+    
+    participant=window.localStorage.getItem('participant')
+    session=window.localStorage.getItem('session')
+
+    if(!stage) stage=3
+    if(!group) group='undefined'
+
+    console.log(group,stage,n_blocks,n_per_block,participant,session,oddball_markers)
+    
     function saveToCsv(samples) 
     {
         const a = document.createElement('a');
@@ -69,9 +57,17 @@
         const file = new Blob([csv_str], { type: 'text/csv' });
         a.href = URL.createObjectURL(file);
         document.body.appendChild(a);
-        a.download = `markers_${group}_${participant}_${session}.csv`;
+        a.download = `markers_${group}_${participant}_${session}_${stage}.csv`;
         a.click();
         document.body.removeChild(a);
+    }
+    function addToMarkers(marker_dict,marker_arr_name){
+          var temp= window.localStorage.getItem(marker_arr_name)
+          var temp_array=[]
+          if(temp)  temp_array=JSON.parse(temp)
+          temp_array.push(marker_dict)
+          window.localStorage.setItem(marker_arr_name,JSON.stringify(temp_array))
+          return temp_array
     }
 
     /* initialize jsPsych */
@@ -103,7 +99,7 @@
     let odd_stimulus= 'audio/2000hz_50ms.wav'
 
     function insert_marker(marker){
-        markers=addToMarkers({timestamp:new Date().getTime()/1000.0,marker})
+        oddball_markers=addToMarkers({timestamp:new Date().getTime()/1000.0,marker},'oddball_markers')
     }
 
 
@@ -194,8 +190,8 @@
         stimulus: `<p>The experiment is complete. Thanks!</p>`,
         choices: "NO_KEYS",
         on_start: () => {
-          console.log(n_stim,markers)
-          saveToCsv(markers) 
+          console.log(n_stim,oddball_markers)
+          if(download > 0) saveToCsv(oddball_markers) 
         },
     };
     timeline.push(end)
@@ -204,5 +200,5 @@
     
 </script>
 
-
+</body>
 </html>
