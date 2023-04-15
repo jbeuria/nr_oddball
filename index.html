@@ -1,15 +1,7 @@
 
 <!DOCTYPE html>
 <html>
-  <head>
-    <!-- <script src="https://unpkg.com/jspsych@7.3.2"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-audio-keyboard-response@1.1.2"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
-    <link rel="stylesheet" href="https://unpkg.com/jspsych@7.3.2/css/jspsych.css" />
-    <script src="js/Muse.js"></script> -->
-  
+  <head>  
   <style>
     body {font-family: Arial, Helvetica, sans-serif;}
     * {box-sizing: border-box;}
@@ -34,6 +26,15 @@
       cursor: pointer;
     }
     
+    button {
+      background-color: #04AA6D;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
     input[type=submit]:hover {
       background-color: #45a049;
     }
@@ -46,67 +47,46 @@
     </style>
     <script>
         var group,stage,n_blocks,n_per_block,participant,session
+                
+        window.localStorage.clear()    
         document.addEventListener('DOMContentLoaded', function() {
-            let url= new URL(window.location.href);
-            let params = new URLSearchParams(url.search);
-            group=params.get('group')
-            stage=parseInt(params.get('stage'))
-
-            n_blocks=parseInt(params.get('nb'))
-            n_per_block=parseInt(params.get('npb'))
-
-
-            if(!n_blocks) n_blocks=3
-            if(!n_per_block) n_per_block=100
-
-
-            markers= window.localStorage.getItem('markers')
-            if(!markers) markers=[]
-            
-            participant=window.localStorage.getItem('participant')
-            session=window.localStorage.getItem('session')
-
             const formElem = document.querySelector("form");
-
-            // submit handler
-
             formElem.addEventListener("submit", (e) => {
-            // on form submission, prevent default
-            e.preventDefault();
-            
-            const formElem = document.querySelector("form");
-            const formData = new FormData(formElem);
-            console.log(formData)
-            window.localStorage.setItem('participant',formData.get("name"))
-            window.localStorage.setItem('group',formData.get("group"))
-            window.localStorage.setItem('session',formData.get("session"))
+                // on form submission, prevent default
+                e.preventDefault();
+                
+                const formElem = document.querySelector("form");
+                const formData = new FormData(formElem);
+                console.log(formData)
+
+                window.localStorage.setItem('participant',formData.get("name"))
+                window.localStorage.setItem('group',formData.get("group"))
+                window.localStorage.setItem('session',formData.get("session"))
+
+                window.location.href='/exp.html?stage=1'
 
             });
         });
-
-        if(!stage) stage=0
-        if(!group) group='N'
-
-
-
-        function addToMarkers(marker_dict){
-            temp= window.localStorage.getItem('markers')
-            temp_array=JSON.parse(temp)
-            temp_array.push(marker_dict)
-            markers=temp_array
-            window.localStorage.setItem('markers',JSON.stringify(temp_array))
-            return temp_array
-        }
-
-
-
     </script>
         
     </script>
   </head>
 <body>
     <h3>User Details</h3>
-    
+    <div>
+      <ul>
+        <li>
+        <a href="https://docs.google.com/forms/d/1AkRHCUP9GL_nvsJcrlS8THayi40L341KNqq6yIeHOMg/viewform" 
+        class="button" target="_blank" rel="noopener">Consent and Assessment for Narration</a>
+        </li>
+        <li>
+        <a href="https://docs.google.com/forms/d/1zo8fL1lHaeaUA03HWuUxhtYK2dPOiBa6j5mtwljc6i0/viewform" 
+        class="button" target="_blank" rel="noopener">Consent and Assessment for Meditation</a>
+        </li>
+      </ul>
+      </ul>
+
+    </div>
     <div class="container">
       <form>
         <label for="group">Group</label>

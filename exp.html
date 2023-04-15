@@ -1,25 +1,39 @@
-
-
 <!DOCTYPE html>
 <html>
   <head>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
 
-        let url= new URL(window.location.href);
-        let params = new URLSearchParams(url.search);
-        var group=params.get('group')
-        var stage=parseInt(params.get('stage'))
-        if(group=='N' && stage==0) goto('/lecture')
-        else if (group=='M' && stage==0) goto('/kirtan')
-        else if(stage==1) goto(`/contemplate?group=${group}`)
-        else if(stage==2) goto('/oddball')
-        else if(stage==3) goto('/end')
+      let url= new URL(window.location.href);
+      let params = new URLSearchParams(url.search);
+
+      var group=window.localStorage.getItem('group')
+      var stage=parseInt(window.localStorage.getItem('stage'))
+
+      if(isNaN(parseInt(params.get('stage')))==false) stage=parseInt(params.get('stage'))
+      if(params.get('group')) group=params.get('group')
+
+      console.log(group,stage)
+
+      window.localStorage.setItem('group',group)
+      window.localStorage.setItem('stage',stage)
+      
+      if(stage==1) goto('/oddball.html?stage=1')
+      if(group=='N' && stage==2) goto('/lecture.html')
+      else if (group=='M' && stage==2) goto('/kirtan.html')
+      else if(stage==3) goto(`/contemplate.html`)
+      else if(stage==4) goto('/oddball.html?stage=4')
+      else if(stage >=5) goto('/end.html')
+      else if(stage==0) goto('/')
+      // else if(!stage) goto('/error.html')
+
     });
+
     function goto(url)
     {
         window.location.href=url
     }
+
     </script>
   </head>
   <body></body>

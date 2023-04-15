@@ -8,35 +8,35 @@
     <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
     <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
     <link rel="stylesheet" href="https://unpkg.com/jspsych@7.3.2/css/jspsych.css" />
-    
-    <script>
-        var group,stage
-        document.addEventListener('DOMContentLoaded', function() {
-            let url= new URL(window.location.href);
-            let params = new URLSearchParams(url.search);
-            var group=params.get('group')
-            var stage=parseInt(params.get('stage'))
-
-        });
-
-        if(!stage) stage=2
-        if(!group) group='undefined'
-
-        markers= window.localStorage.getItem('markers')
-        if(!markers) markers=[]
-
-        function addToMarkers(marker_dict){
-            temp= window.localStorage.getItem('markers')
-            temp_array=JSON.parse(temp)
-            temp_array.push(marker_dict)
-            window.localStorage.setItem('markers',JSON.stringify(temp_array))
-        }
-
-    </script>
+    <script src="./js/helper.js"></script>
   </head>
   <body></body>
 
 <script>
+                               
+    var group,stage,participant,session
+    participant=window.localStorage.getItem('participant')
+    session=window.localStorage.getItem('session')
+    group=window.localStorage.getItem('group')
+    stage=window.localStorage.getItem('stage')
+
+    let url= new URL(window.location.href);
+    let params = new URLSearchParams(url.search);
+    group=params.get('group')
+    stage=parseInt(params.get('stage'))
+    var download=parseInt(params.get('download'))
+
+    if(isNaN(download)) download=0
+
+    window.localStorage.setItem('contemplate_markers','[]')
+    var contemplate_markers=[]
+
+
+    if(!stage) stage=3
+    if(!group) group='M'
+
+    console.log(group,stage,participant,session,contemplate_markers)
+
     /* initialize jsPsych */
     const jsPsych = initJsPsych({show_progress_bar: true});
 
@@ -61,26 +61,46 @@
     };
     timeline.push(welcome);
 
-    let question_index=0
+    var question_index=0
     let assessment=[]
+
+    let marker_value=301
+
     if(group=='N')
     {
         assessment=[
-            '/audio/assessment/N/1.mp3',
-            '/audio/assessment/N/2.mp3',
-            '/audio/assessment/N/3.mp3',
-            '/audio/assessment/N/4.mp3',
+            '/audio/assessment/N/Q1_N.mp3',
+            '/audio/assessment/N/Q2_N.mp3',
+            '/audio/assessment/N/Q3_N.mp3',
+            '/audio/assessment/N/Q4_N.mp3',
         ]
+        marker_value=301
+
     }
     else if(group=='M')
     {
         assessment=[
-            '/audio/assessment/M/1.mp3',
-            '/audio/assessment/M/2.mp3',
-            '/audio/assessment/M/3.mp3',
-            '/audio/assessment/M/4.mp3',
-        ]       
+            '/audio/assessment/M/Q1_M.mp3',
+            '/audio/assessment/M/Q2_M.mp3',
+            '/audio/assessment/M/Q3_M.mp3',
+            '/audio/assessment/M/Q4_M.mp3',
+        ]  
+        marker_value=401     
     }
+    var assessment_done=[]
+    function get_randomindex()
+    {
+        N=assessment.length
+        var temp;
+        while(true)
+        {
+            temp=Math.floor(Math.random() * N);
+            var isThere=temp in assessment_done
+            if(isThere==false ) break
+        }
+        return temp
+    }
+
     const trial = {
         type: jsPsychAudioKeyboardResponse,
         stimulus: assessment[question_index],
@@ -88,18 +108,27 @@
         post_trial_gap: 1000,
         trial_ends_after_audio: true,
         on_start: () => { 
-            let temp={timestamp:new Date().getTime()/1000.0,marker:301 + question_index}
-            addToMarkers(temp)
+            let temp={timestamp:getTimeInSec(),marker:marker_value + question_index}
+            contemplate_markers=addToMarkers(temp,'contemplate_markers')
         },
         on_finish: ()=>{
-            let temp={timestamp:new Date().getTime()/1000.0,marker:320+ question_index}
-            addToMarkers(temp)
-            question_index+=1
+            let temp={timestamp:getTimeInSec(),marker:marker_value + 50+ question_index}
+            contemplate_markers=addToMarkers(temp,'contemplate_markers')
+            // question_index=get_randomindex()
+            question_index += 1
+            assessment_done.push(question_index)
         } 
     };
     
+
+    let next_assessment = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `<h1> Completed: Question ${question_index+1}/${assessment.length}<h1> 
+        <h1 style='color:blue'> Press any key to go to next question</h1>`
+    };
+
     const trial_procedure={
-        timeline: [trial],
+        timeline: [trial,next_assessment],
         timeline_variables: question_index,
         repetitions: assessment.length ,
         randomize_order: true
@@ -109,7 +138,7 @@
     
     const trial_end = {
         type: jsPsychAudioKeyboardResponse,
-        stimulus: '/audio/assessment/open_eyes.mp3',
+        stimulus: '/audio/assessment/eyes-open.mp3',
         choices: "NO_KEYS",
         post_trial_gap: 1000,
         trial_ends_after_audio: true,
@@ -118,8 +147,14 @@
 
     const end = {
         type: jsPsychHtmlKeyboardResponse,
-        stimulus: `<a href='/oddball' >Click to proceed to the last stage</a>`,
+        stimulus: ()=>{            
+            window.localStorage.setItem('stage',stage+1)
+            window.location.href=`/exp.html?stage=${stage+1}`
+        },
         choices: "NO_KEYS",
+        on_start: () => {
+          if(download > 0) saveToCsv(contemplate_markers) 
+        },
     };
     timeline.push(end)
     jsPsych.run(timeline);

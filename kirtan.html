@@ -9,36 +9,39 @@
     <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
     <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
     <link rel="stylesheet" href="https://unpkg.com/jspsych@7.3.2/css/jspsych.css" />
-    
-    <script>
-        var group,stage
-        document.addEventListener('DOMContentLoaded', function() {
-            let url= new URL(window.location.href);
-            let params = new URLSearchParams(url.search);
-            var group=params.get('group')
-            var stage=parseInt(params.get('stage'))
+    <script src="./js/helper.js"></script>
 
-        });
-
-        if(!stage) stage=1
-        if(!group) group='M'
-
-        markers= window.localStorage.getItem('markers')
-        if(!markers) markers=[]
-
-        function addToMarkers(marker_dict){
-            temp= window.localStorage.getItem('markers')
-            temp_array=JSON.parse(temp)
-            temp_array.push(marker_dict)
-            window.localStorage.setItem('markers',JSON.stringify(temp_array))
-        }
-
-    </script>
   </head>
   <body></body>
 
 <script>
 
+    var group,stage,participant,session
+
+    participant=window.localStorage.getItem('participant')
+    session=window.localStorage.getItem('session')
+    group=window.localStorage.getItem('group')
+    stage=window.localStorage.getItem('stage')
+
+    let url= new URL(window.location.href);
+    let params = new URLSearchParams(url.search);
+    group=params.get('group')
+    stage=parseInt(params.get('stage'))
+    var download=parseInt(params.get('download'))
+
+    if(isNaN(download)) download=0
+
+    window.localStorage.setItem('kirtan_markers','[]')
+    var kirtan_markers=[]
+    
+
+    if(!stage) stage=2
+    if(!group) group='M'
+    window.localStorage.setItem('stage',2)
+    window.localStorage.setItem('group','M')
+    
+    console.log(group,stage,participant,session,kirtan_markers)
+    
     /* initialize jsPsych */
     const jsPsych = initJsPsych({show_progress_bar: true});
 
@@ -62,21 +65,21 @@
     };
     timeline.push(welcome);
 
-    let narrative_file='/audio/jahnavi_harrison.mp3'
+    let kirtan_file='/audio/AgnidevPrabhu2015.mp3'
 
     const trial = {
         type: jsPsychAudioKeyboardResponse,
-        stimulus: narrative_file,
+        stimulus: kirtan_file,
         choices: "NO_KEYS",
         post_trial_gap: 1000,
         trial_ends_after_audio: true,
         on_start: () => { 
-            let temp={timestamp:new Date().getTime()/1000.0,marker:201}
-            addToMarkers(temp)
+            let temp={timestamp:getTimeInSec(),marker:201}
+            kirtan_markers=addToMarkers(temp,'kirtan_markers')
         },
         on_finish: ()=>{
-            let temp={timestamp:new Date().getTime()/1000.0,marker:202}
-            addToMarkers(temp)
+            let temp={timestamp:getTimeInSec(),marker:202}
+            kirtan_markers=addToMarkers(temp,'kirtan_markers')
         } 
     };
 
@@ -84,8 +87,14 @@
     
     const end = {
         type: jsPsychHtmlKeyboardResponse,
-        stimulus: `<a href='/contemplate?group=M' >Click to proceed to assessment stage</a>`,
+        stimulus: ()=>{            
+            window.localStorage.setItem('stage',stage+1)
+            window.location.href=`/exp.html?stage=${stage+1}&group=M`
+        },
         choices: "NO_KEYS",
+        on_start: () => {
+          if(download > 0) saveToCsv(kirtan_markers) 
+        },
     };
     timeline.push(end)
 

@@ -9,35 +9,40 @@
     <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
     <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
     <link rel="stylesheet" href="https://unpkg.com/jspsych@7.3.2/css/jspsych.css" />
-    
-    <script>
-        var group,stage
-        document.addEventListener('DOMContentLoaded', function() {
-            let url= new URL(window.location.href);
-            let params = new URLSearchParams(url.search);
-            var group=params.get('group')
-            var stage=parseInt(params.get('stage'))
+    <script src="./js/helper.js"></script>
 
-        });
-
-        if(!stage) stage=1
-        if(!group) group='N'
-
-        markers= window.localStorage.getItem('markers')
-        if(!markers) markers=[]
-        
-        function addToMarkers(marker_dict){
-            temp= window.localStorage.getItem('markers')
-            temp_array=JSON.parse(temp)
-            temp_array.push(marker_dict)
-            window.localStorage.setItem('markers',JSON.stringify(temp_array))
-        }
-
-    </script>
   </head>
   <body></body>
 
 <script>
+    var group,stage,participant,session
+    participant=window.localStorage.getItem('participant')
+    session=window.localStorage.getItem('session')
+    group=window.localStorage.getItem('group')
+    stage=window.localStorage.getItem('stage')
+
+    let url= new URL(window.location.href);
+    let params = new URLSearchParams(url.search);
+    group=params.get('group')
+    stage=parseInt(params.get('stage'))
+    var download=parseInt(params.get('download'))
+
+    if(isNaN(download)) download=0
+
+    window.localStorage.setItem('lecture_markers','[]')
+    var lecture_markers= []
+
+    participant=window.localStorage.getItem('participant')
+    session=window.localStorage.getItem('session')
+
+    if(!stage) stage=2
+    if(!group) group='N'
+
+    window.localStorage.setItem('stage',2)
+    window.localStorage.setItem('group','N')
+
+    console.log(group,stage,participant,session,lecture_markers)
+
     /* initialize jsPsych */
     const jsPsych = initJsPsych({show_progress_bar: true});
 
@@ -52,7 +57,7 @@
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `<h1> Welcome to the experiment.<h1> 
         <h1 style='color:blue'> Press any key to play the narrative. </h1>
-        <ul> 
+        <ul style='float:left'> 
             <li>The duration is around 10 minutes</li> 
             <li>Please close your eyes and after the narrative, 
                 you will be assessed based on the content you are going to hear
@@ -71,12 +76,12 @@
         post_trial_gap: 1000,
         trial_ends_after_audio: true,
         on_start: () => { 
-            let temp={timestamp:new Date().getTime()/1000.0,marker:101}
-            addToMarkers(temp)
+            let temp={timestamp:getTimeInSec(),marker:101}
+            lecture_markers=addToMarkers(temp,'lecture_markers')
         },
         on_finish: ()=>{
-            let temp={timestamp:new Date().getTime()/1000.0,marker:102}
-            addToMarkers(temp)
+            let temp={timestamp:getTimeInSec(),marker:102}
+            lecture_markers=addToMarkers(temp,'lecture_markers')
         } 
     };
 
@@ -84,8 +89,14 @@
     
     const end = {
         type: jsPsychHtmlKeyboardResponse,
-        stimulus: `<a href='/contemplate?group=N' >Click to proceed to assessment stage</a>`,
+        stimulus: ()=>{ 
+            window.localStorage.setItem('stage',stage+1)
+            window.location.href=`/exp.html?stage=${stage+1}&group=N`
+        },
         choices: "NO_KEYS",
+        on_start: () => {
+          if(download > 0) saveToCsv(lecture_markers) 
+        },
     };
     timeline.push(end)
 

@@ -8,12 +8,11 @@
     <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
     <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
     <link rel="stylesheet" href="https://unpkg.com/jspsych@7.3.2/css/jspsych.css" />
-
+    <script src="./js/helper.js"></script>
   </head>
   <body>
 
   <script>
-
     var group,stage,n_blocks,n_per_block,participant,session
     let url= new URL(window.location.href);
     let params = new URLSearchParams(url.search);
@@ -24,10 +23,9 @@
     n_blocks=parseInt(params.get('nb'))
     n_per_block=parseInt(params.get('npb'))
 
-
     if(!n_blocks) n_blocks=3
     if(!n_per_block) n_per_block=100
-    if(isNaN(download)) download=1
+    if(isNaN(download)) download=0
 
     window.localStorage.setItem('oddball_markers','[]')
     oddball_markers= window.localStorage.getItem('oddball_markers')
@@ -36,39 +34,11 @@
     participant=window.localStorage.getItem('participant')
     session=window.localStorage.getItem('session')
 
-    if(!stage) stage=3
+    if(!stage) stage=1
     if(!group) group='undefined'
 
     console.log(group,stage,n_blocks,n_per_block,participant,session,oddball_markers)
     
-    function saveToCsv(samples) 
-    {
-        const a = document.createElement('a');
-    
-        const headers = ['timestamp','marker' ].join(',');
-
-        let csv_str=headers +'\n'
-        samples.forEach(element => {
-            let temp=Object.values(element).join(',')
-            csv_str+=temp
-            csv_str+='\n'
-        });
-
-        const file = new Blob([csv_str], { type: 'text/csv' });
-        a.href = URL.createObjectURL(file);
-        document.body.appendChild(a);
-        a.download = `markers_${group}_${participant}_${session}_${stage}.csv`;
-        a.click();
-        document.body.removeChild(a);
-    }
-    function addToMarkers(marker_dict,marker_arr_name){
-          var temp= window.localStorage.getItem(marker_arr_name)
-          var temp_array=[]
-          if(temp)  temp_array=JSON.parse(temp)
-          temp_array.push(marker_dict)
-          window.localStorage.setItem(marker_arr_name,JSON.stringify(temp_array))
-          return temp_array
-    }
 
     /* initialize jsPsych */
     const jsPsych = initJsPsych({show_progress_bar: true});
@@ -83,23 +53,23 @@
     let welcome = {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `<h1> Welcome to the experiment.<h1> 
-        <h1 style='color:blue'> Press any key to connect with Muse. </h1>`
+        <h1 style='color:blue'> Press any key to start ... </h1>`
     };
     timeline.push(welcome);
 
-    const start = {
-    type: jsPsychHtmlKeyboardResponse,
-    stimulus: "<h1> Press any key to continue further ... </h1>",
-    // on_load:async ()=>await setup_muse(muse_client),
-    };
+    // const start = {
+    // type: jsPsychHtmlKeyboardResponse,
+    // stimulus: "<h1> Press any key to continue further ... </h1>",
+    // // on_load:async ()=>await setup_muse(muse_client),
+    // };
 
-    timeline.push(start);
+    // timeline.push(start);
 
     let even_stimulus= 'audio/500hz_50ms.wav'
     let odd_stimulus= 'audio/2000hz_50ms.wav'
 
     function insert_marker(marker){
-        oddball_markers=addToMarkers({timestamp:new Date().getTime()/1000.0,marker},'oddball_markers')
+        oddball_markers=addToMarkers({timestamp:getTimeInSec(),marker},'oddball_markers')
     }
 
 
@@ -136,7 +106,7 @@
         // console.log(test_counter)
         if(test_counter==n_per_block) { 
             test_counter= 0
-            trial_block+=1
+            // trial_block+=1
         }
   
         return response
@@ -170,8 +140,11 @@
     const block_change = {
         type: jsPsychHtmlKeyboardResponse,
         choices: "NO_KEYS",
-        stimulus:  `<h1> Trial Block No: ${trial_block}/${n_blocks}</h1>`,
+        stimulus:  ()=>{return `<h1> Trial Block No: ${trial_block}/${n_blocks}</h1>`},
         trial_duration: 1500,
+        on_finish: ()=>{
+            trial_block+=1
+        }
     };
 
     const trial_blocks={
@@ -181,17 +154,19 @@
         randomize_order: true
     }
 
-
     timeline.push(trial_blocks);
-
 
     const end = {
         type: jsPsychHtmlKeyboardResponse,
-        stimulus: `<p>The experiment is complete. Thanks!</p>`,
+        stimulus: ()=>{            
+            window.localStorage.setItem('stage',stage+1)
+            window.location.href=`/exp.html?stage=${stage+1}`
+        },
         choices: "NO_KEYS",
         on_start: () => {
           console.log(n_stim,oddball_markers)
           if(download > 0) saveToCsv(oddball_markers) 
+
         },
     };
     timeline.push(end)
