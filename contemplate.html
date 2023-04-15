@@ -103,33 +103,42 @@
 
     const trial = {
         type: jsPsychAudioKeyboardResponse,
-        stimulus: assessment[question_index],
+        stimulus: ()=>{ 
+            let qi=jsPsych.timelineVariable('question_index')
+            return assessment[qi]
+        },
         choices: "NO_KEYS",
         post_trial_gap: 1000,
         trial_ends_after_audio: true,
         on_start: () => { 
-            let temp={timestamp:getTimeInSec(),marker:marker_value + question_index}
+            let qi=jsPsych.timelineVariable('question_index')
+            let temp={timestamp:getTimeInSec(),marker:marker_value + qi}
             contemplate_markers=addToMarkers(temp,'contemplate_markers')
         },
         on_finish: ()=>{
-            let temp={timestamp:getTimeInSec(),marker:marker_value + 50+ question_index}
+
+            let qi=jsPsych.timelineVariable('question_index')
+            let temp={timestamp:getTimeInSec(),marker:marker_value + 50+ qi}
             contemplate_markers=addToMarkers(temp,'contemplate_markers')
             // question_index=get_randomindex()
-            question_index += 1
-            assessment_done.push(question_index)
+            // question_index += 1
+            assessment_done.push(qi)
         } 
     };
     
 
     let next_assessment = {
     type: jsPsychHtmlKeyboardResponse,
-    stimulus: `<h1> Completed: Question ${question_index+1}/${assessment.length}<h1> 
+    stimulus: ()=>{
+        let qi=jsPsych.timelineVariable('question_index')
+       return  `<h1> Completed: Question ${qi+1}<h1> 
         <h1 style='color:blue'> Press any key to go to next question</h1>`
+    }
     };
 
     const trial_procedure={
         timeline: [trial,next_assessment],
-        timeline_variables: question_index,
+        timeline_variables: [{question_index:0},{question_index:1},{question_index:2},{question_index:3}],
         repetitions: assessment.length ,
         randomize_order: true
     }
