@@ -18,13 +18,13 @@
       window.localStorage.setItem('group',group)
       window.localStorage.setItem('stage',stage)
       
-      if(stage==1) goto('/oddball.html?stage=1')
-      if(group=='N' && stage==2) goto('/lecture.html')
-      else if (group=='M' && stage==2) goto('/kirtan.html')
-      else if(stage==3) goto(`/contemplate.html`)
-      else if(stage==4) goto('/oddball.html?stage=4')
-      else if(stage >=5) goto('/end.html')
-      else if(stage==0) goto('/')
+      if(stage==1) goto('oddball.html?stage=1')
+      if(group=='N' && stage==2) goto('lecture.html')
+      else if (group=='M' && stage==2) goto('kirtan.html')
+      else if(stage==3) goto(`contemplate.html`)
+      else if(stage==4) goto('oddball.html?stage=4')
+      else if(stage >=5) goto('end.html')
+      else if(stage==0) goto('index.html')
       // else if(!stage) goto('/error.html')
 
     });

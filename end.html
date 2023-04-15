@@ -1,0 +1,37 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://unpkg.com/jspsych@7.3.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-audio-keyboard-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
+    <link rel="stylesheet" href="https://unpkg.com/jspsych@7.3.2/css/jspsych.css" />
+    <script src="./js/helper.js"></script>
+  </head>
+  <body>
+
+  <script>
+    /* initialize jsPsych */
+    const jsPsych = initJsPsych({show_progress_bar: true});
+
+    let timeline=[]
+    const end = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: ()=>{            
+            return `<h1 style='color:blue'>Thank you for your participation! You can leave now.</h1>`
+        },
+        choices: "NO_KEYS",
+        on_start: () => {
+            allStorageToCsv()
+        },
+    };
+    timeline.push(end)
+    
+    jsPsych.run(timeline);
+    
+</script>
+
+</body>
+</html>

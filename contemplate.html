@@ -69,10 +69,10 @@
     if(group=='N')
     {
         assessment=[
-            '/audio/assessment/N/Q1_N.mp3',
-            '/audio/assessment/N/Q2_N.mp3',
-            '/audio/assessment/N/Q3_N.mp3',
-            '/audio/assessment/N/Q4_N.mp3',
+            'audio/assessment/N/Q1_N.mp3',
+            'audio/assessment/N/Q2_N.mp3',
+            'audio/assessment/N/Q3_N.mp3',
+            'audio/assessment/N/Q4_N.mp3',
         ]
         marker_value=301
 
@@ -80,10 +80,10 @@
     else if(group=='M')
     {
         assessment=[
-            '/audio/assessment/M/Q1_M.mp3',
-            '/audio/assessment/M/Q2_M.mp3',
-            '/audio/assessment/M/Q3_M.mp3',
-            '/audio/assessment/M/Q4_M.mp3',
+            'audio/assessment/M/Q1_M.mp3',
+            'audio/assessment/M/Q2_M.mp3',
+            'audio/assessment/M/Q3_M.mp3',
+            'audio/assessment/M/Q4_M.mp3',
         ]  
         marker_value=401     
     }
@@ -92,11 +92,13 @@
     {
         N=assessment.length
         var temp;
+        console.log(assessment_done)
         while(true)
         {
             temp=Math.floor(Math.random() * N);
-            var isThere=temp in assessment_done
-            if(isThere==false ) break
+            var isThere=assessment_done.indexOf(temp)
+            console.log(isThere,temp)
+            if(isThere < 0 ) break
         }
         return temp
     }
@@ -104,25 +106,21 @@
     const trial = {
         type: jsPsychAudioKeyboardResponse,
         stimulus: ()=>{ 
-            let qi=jsPsych.timelineVariable('question_index')
-            return assessment[qi]
+            question_index= get_randomindex() //jsPsych.timelineVariable('question_index')
+            return assessment[question_index]
         },
         choices: "NO_KEYS",
         post_trial_gap: 1000,
         trial_ends_after_audio: true,
         on_start: () => { 
-            let qi=jsPsych.timelineVariable('question_index')
-            let temp={timestamp:getTimeInSec(),marker:marker_value + qi}
+            let temp={timestamp:getTimeInSec(),marker:marker_value + question_index}
             contemplate_markers=addToMarkers(temp,'contemplate_markers')
         },
         on_finish: ()=>{
 
-            let qi=jsPsych.timelineVariable('question_index')
-            let temp={timestamp:getTimeInSec(),marker:marker_value + 50+ qi}
+            let temp={timestamp:getTimeInSec(),marker:marker_value + 50+ question_index}
             contemplate_markers=addToMarkers(temp,'contemplate_markers')
-            // question_index=get_randomindex()
-            // question_index += 1
-            assessment_done.push(qi)
+            assessment_done.push(question_index)
         } 
     };
     
@@ -130,15 +128,24 @@
     let next_assessment = {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: ()=>{
-        let qi=jsPsych.timelineVariable('question_index')
-       return  `<h1> Completed: Question ${qi+1}<h1> 
+       return  `<h1> Completed: Question ${question_index+1}<h1> 
         <h1 style='color:blue'> Press any key to go to next question</h1>`
     }
     };
 
+    let gap_assessment = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: ()=>{
+       return  `<h1> In Progress: Question ${question_index+1}<h1> 
+        <h1 style='color:blue'>Close your eyes. You have at least 20 seconds for contemplation.</h1>`
+    },
+    choices: "NO_KEYS",
+    post_trial_gap: 20*1000,
+    };
+
     const trial_procedure={
         timeline: [trial,next_assessment],
-        timeline_variables: [{question_index:0},{question_index:1},{question_index:2},{question_index:3}],
+        // timeline_variables: [{question_index:0},{question_index:1},{question_index:2},{question_index:3}],
         repetitions: assessment.length ,
         randomize_order: true
     }
@@ -147,7 +154,7 @@
     
     const trial_end = {
         type: jsPsychAudioKeyboardResponse,
-        stimulus: '/audio/assessment/eyes-open.mp3',
+        stimulus: 'audio/assessment/eyes-open.mp3',
         choices: "NO_KEYS",
         post_trial_gap: 1000,
         trial_ends_after_audio: true,
@@ -158,7 +165,7 @@
         type: jsPsychHtmlKeyboardResponse,
         stimulus: ()=>{            
             window.localStorage.setItem('stage',stage+1)
-            window.location.href=`/exp.html?stage=${stage+1}`
+            window.location.href=`exp.html?stage=${stage+1}`
         },
         choices: "NO_KEYS",
         on_start: () => {

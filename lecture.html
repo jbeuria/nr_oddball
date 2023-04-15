@@ -67,7 +67,7 @@
     };
     timeline.push(welcome);
 
-    let narrative_file='/audio/reverses_of_life.mp3'
+    let narrative_file='audio/reverses_of_life.mp3'
 
     const trial = {
         type: jsPsychAudioKeyboardResponse,
@@ -91,7 +91,7 @@
         type: jsPsychHtmlKeyboardResponse,
         stimulus: ()=>{ 
             window.localStorage.setItem('stage',stage+1)
-            window.location.href=`/exp.html?stage=${stage+1}&group=N`
+            window.location.href=`exp.html?stage=${stage+1}&group=N`
         },
         choices: "NO_KEYS",
         on_start: () => {

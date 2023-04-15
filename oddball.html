@@ -27,8 +27,8 @@
     if(!n_per_block) n_per_block=100
     if(isNaN(download)) download=0
 
-    window.localStorage.setItem('oddball_markers','[]')
-    oddball_markers= window.localStorage.getItem('oddball_markers')
+    window.localStorage.setItem(`oddball_markers_${stage}`,'[]')
+    oddball_markers= window.localStorage.getItem(`oddball_markers_${stage}`)
     if(!oddball_markers) oddball_markers=[]
     
     participant=window.localStorage.getItem('participant')
@@ -69,7 +69,7 @@
     let odd_stimulus= 'audio/2000hz_50ms.wav'
 
     function insert_marker(marker){
-        oddball_markers=addToMarkers({timestamp:getTimeInSec(),marker},'oddball_markers')
+        oddball_markers=addToMarkers({timestamp:getTimeInSec(),marker},`oddball_markers_${stage}`)
     }
 
 
@@ -141,7 +141,7 @@
         type: jsPsychHtmlKeyboardResponse,
         choices: "NO_KEYS",
         stimulus:  ()=>{return `<h1> Trial Block No: ${trial_block}/${n_blocks}</h1>`},
-        trial_duration: 1500,
+        trial_duration: 3000,
         on_finish: ()=>{
             trial_block+=1
         }
@@ -160,7 +160,7 @@
         type: jsPsychHtmlKeyboardResponse,
         stimulus: ()=>{            
             window.localStorage.setItem('stage',stage+1)
-            window.location.href=`/exp.html?stage=${stage+1}`
+            window.location.href=`exp.html?stage=${stage+1}`
         },
         choices: "NO_KEYS",
         on_start: () => {
