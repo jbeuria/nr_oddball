@@ -140,9 +140,10 @@
 
     const block_change = {
         type: jsPsychHtmlKeyboardResponse,
-        choices: "NO_KEYS",
-        stimulus:  ()=>{return `<h1> Trial Block No: ${trial_block}/${n_blocks}</h1>`},
-        trial_duration: 3000,
+        // choices: "NO_KEYS",
+        stimulus:  ()=>{return `<h1> Trial Block No: ${trial_block}/${n_blocks}</h1> 
+        <h1 style='color:blue'> Press any key to start this trial block`},
+        // trial_duration: 3000,
         on_finish: ()=>{
             trial_block+=1
         }
