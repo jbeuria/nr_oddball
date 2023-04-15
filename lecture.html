@@ -73,6 +73,9 @@
         type: jsPsychAudioKeyboardResponse,
         stimulus: narrative_file,
         choices: "NO_KEYS",
+        prompt:`
+        <img src="img/speaker.png" alt="Speaker Image" width="200" height="200">
+        <h1> Close your eyes and listen to narrative very attentively`,
         post_trial_gap: 1000,
         trial_ends_after_audio: true,
         on_start: () => { 
