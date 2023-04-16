@@ -52,7 +52,7 @@
     stimulus: `<h1> Welcome to the experiment.<h1> 
         <h1 style='color:blue'> Press any key to start the self reflective questions</h1>
         <ul> 
-            <li>The duration of each will be for 30 seconds</li> 
+            <li>The duration of each will be for 20 seconds</li> 
             <li>Please close your eyes and hear the question being asked <li> 
             <li>Then, you will have to contemplate on the answer mentally without opening eyes</li>
             <li>Please do not sleep </li>
@@ -130,7 +130,8 @@
     stimulus: ()=>{
        return  `<h1> Completed: Question ${question_index+1}<h1> 
         <h1 style='color:blue'> Press any key to go to next question</h1>`
-    }
+    },
+    choices: "NO_KEYS",
     };
 
     let gap_assessment = {
