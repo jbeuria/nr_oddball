@@ -7,6 +7,7 @@
     <script src="https://unpkg.com/@jspsych/plugin-audio-keyboard-response@1.1.2"></script>
     <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
     <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey@0.2.1"></script>
     <link rel="stylesheet" href="https://unpkg.com/jspsych@7.3.2/css/jspsych.css" />
     <script src="./js/helper.js"></script>
   </head>
@@ -149,8 +150,28 @@
         }
     };
 
+
+    var survey_step = {
+    type: jsPsychSurvey,
+    pages: [
+        [
+        {
+            type: 'text',
+            prompt: "How many odd sounds did you hear?", 
+            placeholder: '',
+            name: 'oddcount', 
+            required: true,
+        }, 
+        ],
+    ],
+    title: 'Oddball Assessment',
+    button_label_finish: 'Submit',
+    // show_question_numbers: 'onPage'
+    };
+
+
     const trial_blocks={
-        timeline: [fixation,block_change,trial_procedure],
+        timeline: [fixation,block_change,trial_procedure,survey_step],
         timeline_variables: test_counter,
         repetitions: n_blocks,
         randomize_order: true
