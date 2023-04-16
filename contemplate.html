@@ -63,7 +63,7 @@
 
     var question_index=0
     let assessment=[]
-
+    let questions=[]
     let marker_value=301
 
     if(group=='N')
@@ -73,6 +73,17 @@
             'audio/assessment/N/Q2_N.mp3',
             'audio/assessment/N/Q3_N.mp3',
             'audio/assessment/N/Q4_N.mp3',
+        ]
+
+        questions=[
+         `<p>Reflect on some reversals in your own life.</p> 
+         <p style='color:blue'> अपने स्वयं के जीवन में कुछ बड़े प्रतिकूल परिस्थिति पर विचार करें। </p>`,
+         `<p>Contemplate how you have helped your near and dear in handling reversals in their life.</p> 
+         <p style='color:blue'>इस बात पर विचार करें कि आपने अपने निकट और प्रिय को उनके जीवन में विपरीत परिस्थितियों में निपटने में कैसे मदद की </p>`,
+          `<p>Think how your look is changing as you progress from boyhood to youth to old age and finally death.</p> 
+          <p style='color:blue'>इस बात पर विचार करें कि जैसे-जैसे आप  बचपन से जवानी, बुढ़ापा और अंत में मृत्यु की ओर प्रगति कर रहे हैं, आपका रूप कैसे बदल रहा हे </p>`,
+          `<p>How does Bhagwat Geeta help one deal with the reverses of life?</p>
+          <p style='color:blue'>भगवत गीता किस प्रकार जीवन की प्रतिकूलताओं से निपटने में मदद करती है? </p>`
         ]
         marker_value=301
 
@@ -85,7 +96,17 @@
             'audio/assessment/M/Q3_M.mp3',
             'audio/assessment/M/Q4_M.mp3',
         ]  
-        marker_value=401     
+        marker_value=401  
+        questions=[
+         `<p>Reflect on the thoughts that distracted you while you were trying to focus on Kirtan.</p> 
+         <p style='color:blue'> कीर्तन पर ध्यान केंद्रित करने की कोशिश करते समय उन विचारों पर चिंतन करें जो आपको विचलित करते हैं। </p>`,
+         `<p>Reflect on the moments when you got immersed in the Kirtan.</p> 
+         <p style='color:blue'>उन क्षणों पर चिंतन करें जब आप कीर्तन में डूबे हुए थे। </p>`,
+          `<p>Reflect on your current mood and how it is different from your mood prior to Kirtan.</p> 
+          <p style='color:blue'>अपने वर्तमान मूड पर चिंतन करें और कीर्तन से पहले यह आपके मूड से कैसे अलग है </p>`,
+          `<p>Reflect on whether time elapsed faster or slower during Kirtan?</p>
+          <p style='color:blue'>इस पर विचार करें कि कीर्तन के दौरान समय तेजी से बीता या धीमा </p>`
+        ]
     }
     var assessment_done=[]
     function get_randomindex()
@@ -109,6 +130,8 @@
             question_index= get_randomindex() //jsPsych.timelineVariable('question_index')
             return assessment[question_index]
         },
+        prompt:()=> ` <img src="img/speaker.png" alt="Speaker Image" width="200" height="200"> 
+        ${questions[question_index]}`,
         choices: "NO_KEYS",
         post_trial_gap: 1000,
         trial_ends_after_audio: true,
@@ -126,18 +149,24 @@
     
 
     let next_assessment = {
-    type: jsPsychHtmlKeyboardResponse,
-    stimulus: ()=>{
-       return  `<h1> Completed: Question ${question_index+1}<h1> 
-        <h1 style='color:blue'> Press any key to go to next question</h1>`
-    },
-    choices: "NO_KEYS",
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: ()=>{
+        return  `
+            <p> ${new Date()}</p>
+            ${questions[question_index]}
+            <h1> Ongoing: Question ${question_index+1}<h1> 
+            <h1 style='color:blue'> Duration: 20 seconds</h1>`
+        },
+        choices: "NO_KEYS",
+        trial_duration:20*1000,
+        post_trial_gap: 1000,
     };
 
     let gap_assessment = {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: ()=>{
-       return  `<h1> In Progress: Question ${question_index+1}<h1> 
+       return  `${questions[question_index]}
+       <h1> In Progress: Question ${question_index+1}<h1> 
         <h1 style='color:blue'>Close your eyes. You have at least 20 seconds for contemplation.</h1>`
     },
     choices: "NO_KEYS",
@@ -145,15 +174,6 @@
     // response_ends_trial:true
     };
 
-    const trial_procedure={
-        timeline: [trial,next_assessment],
-        // timeline_variables: [{question_index:0},{question_index:1},{question_index:2},{question_index:3}],
-        repetitions: assessment.length ,
-        randomize_order: true
-    }
-
-    timeline.push(trial_procedure);
-    
     const trial_end = {
         type: jsPsychAudioKeyboardResponse,
         stimulus: 'audio/assessment/eyes-open.mp3',
@@ -161,7 +181,18 @@
         post_trial_gap: 1000,
         trial_ends_after_audio: true,
     }
-    timeline.push(trial_end);
+
+    const trial_procedure={
+        timeline: [trial,next_assessment,trial_end],
+        // timeline_variables: [{question_index:0},{question_index:1},{question_index:2},{question_index:3}],
+        repetitions: assessment.length ,
+        randomize_order: true
+    }
+
+    timeline.push(trial_procedure);
+    
+
+    // timeline.push(trial_end);
 
     const end = {
         type: jsPsychHtmlKeyboardResponse,
