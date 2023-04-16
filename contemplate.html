@@ -152,9 +152,8 @@
         type: jsPsychHtmlKeyboardResponse,
         stimulus: ()=>{
         return  `
-            <p> ${new Date()}</p>
+        <h1> Question: ${question_index+1}<h1> 
             ${questions[question_index]}
-            <h1> Ongoing: Question ${question_index+1}<h1> 
             <h1 style='color:blue'> Duration: 20 seconds</h1>`
         },
         choices: "NO_KEYS",
