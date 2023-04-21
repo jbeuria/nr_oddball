@@ -77,10 +77,12 @@
         trial_ends_after_audio: true,
         on_start: () => { 
             let temp={timestamp:getTimeInSec(),marker:201}
+            triggerKeyPress(temp['marker'])
             kirtan_markers=addToMarkers(temp,'kirtan_markers')
         },
         on_finish: ()=>{
             let temp={timestamp:getTimeInSec(),marker:202}
+            triggerKeyPress(temp['marker'])
             kirtan_markers=addToMarkers(temp,'kirtan_markers')
         } 
     };

@@ -70,3 +70,14 @@ function allStorageToCsv() {
     saveToCsv(archive) 
     return archive;
 }
+
+function triggerKeyPress(marker)
+{
+    keylist={1001:'a',1002:'b',101:'c',102:'d', 201:'e',202:'f',
+    401:'g', 402:'h', 403:'i', 404:'j',
+    451:'k' ,452:'l',453:'m',454:'n', 
+    301:'o', 302:'p', 303:'q', 304:'r' , 
+    351:'s' ,352:'t',353:'u',354:'v',} 
+    const enterEvent = new KeyboardEvent('keydown', { key: keylist[marker] });
+    document.dispatchEvent(enterEvent);
+}

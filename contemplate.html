@@ -137,11 +137,13 @@
         trial_ends_after_audio: true,
         on_start: () => { 
             let temp={timestamp:getTimeInSec(),marker:marker_value + question_index}
+            triggerKeyPress(temp['marker'])
             contemplate_markers=addToMarkers(temp,'contemplate_markers')
         },
         on_finish: ()=>{
 
             let temp={timestamp:getTimeInSec(),marker:marker_value + 50+ question_index}
+            triggerKeyPress(temp['marker'])
             contemplate_markers=addToMarkers(temp,'contemplate_markers')
             assessment_done.push(question_index)
         } 
