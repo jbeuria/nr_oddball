@@ -70,7 +70,7 @@
     let odd_stimulus= 'audio/2000hz_50ms.wav'
 
     function insert_marker(marker){
-        triggerKeyPress(temp['marker'])
+        triggerKeyPress(marker)
         oddball_markers=addToMarkers({timestamp:getTimeInSec(),marker},`oddball_markers_${stage}`)
     }
 
